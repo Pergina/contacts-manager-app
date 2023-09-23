@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/Pergina/contacts-manager-app/static/css/main.98b9da25.css",
+    "main.js": "/Pergina/contacts-manager-app/static/js/main.264496dd.js",
+    "static/media/Spinner.gif": "/Pergina/contacts-manager-app/static/media/Spinner.5b35cef0ce49e2af8525.gif",
+    "static/media/no-found.gif": "/Pergina/contacts-manager-app/static/media/no-found.8a3fe9fd54d21c85d260.gif",
+    "static/media/man-taking-note.png": "/Pergina/contacts-manager-app/static/media/man-taking-note.578e1679689f39584d15.png",
+    "index.html": "/Pergina/contacts-manager-app/index.html",
+    "main.98b9da25.css.map": "/Pergina/contacts-manager-app/static/css/main.98b9da25.css.map",
+    "main.264496dd.js.map": "/Pergina/contacts-manager-app/static/js/main.264496dd.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.98b9da25.css",
+    "static/js/main.264496dd.js"
+  ]
+}
