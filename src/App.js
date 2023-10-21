@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
 
-import _ from "lodash";
-//Underline or Underscore
-
-import { contactContext } from "./context/contactContext";
+import { ContactContext } from "./context/contactContext";
 import {
   AddContact,
   ViewContact,
@@ -29,6 +26,7 @@ import {
   YELLOW,
   COMMENT,
 } from "./helpers/colors";
+import { contactSchema } from "./validations/contactValidation";
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -36,13 +34,12 @@ const App = () => {
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [groups, setGroups] = useState([]);
   const [contact, setContact] = useState({});
-  // const [errors, setErrors] = useState([]);
+  const [contactQuery, setContactQuery] = useState({ text: "" });
+  const [errors, setErrors] = useState([])
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // console.log("Contact Manager App 🐧 ");
-
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -68,10 +65,14 @@ const App = () => {
     // event.preventDefault();
     try {
       setLoading((prevLoading) => !prevLoading);
-
-      // await contactSchema.validate(contact, { abortEarly: false });
-
+      // await contactSchema.validate(contact, {abortEarly: false});
       const { status, data } = await createContact(values);
+
+      /*
+       * NOTE
+       * 1- Rerender -> forceRender, setForceRender
+       * 2- setContact(data)
+       */
 
       if (status === 201) {
         const allContacts = [...contacts, data];
@@ -79,14 +80,13 @@ const App = () => {
         setContacts(allContacts);
         setFilteredContacts(allContacts);
 
-        // setContact({});
-        // setErrors([]);
+        setContact({});
         setLoading((prevLoading) => !prevLoading);
         navigate("/contacts");
       }
     } catch (err) {
       console.log(err.message);
-      // setErrors(err.inner);
+      setErrors(err.inner)
       setLoading((prevLoading) => !prevLoading);
     }
   };
@@ -169,33 +169,29 @@ const App = () => {
     }
   };
 
-  // let filterTimeout;
-  const contactSearch = _.debounce((query) => {
-    // clearTimeout(filterTimeout);
+  const contactSearch = (event) => {
+    setContactQuery({ ...contactQuery, text: event.target.value });
+    const allContacts = contacts.filter((contact) => {
+      return contact.fullname
+        .toLowerCase()
+        .includes(event.target.value.toLowerCase());
+    });
 
-    if (!query) return setFilteredContacts([...contacts]);
-
-    // filterTimeout = setTimeout(() => {
-    setFilteredContacts(
-      contacts.filter((contact) => {
-        return contact.fullname.toLowerCase().includes(query.toLowerCase());
-      })
-    );
-    // }, 1000);
-  }, 1000);
+    setFilteredContacts(allContacts);
+  };
 
   return (
-    <contactContext.Provider
+    <ContactContext.Provider
       value={{
         loading,
         setLoading,
         contact,
         setContacts,
         setFilteredContacts,
+        contactQuery,
         contacts,
         filteredContacts,
         groups,
-        /* errors, */
         onContactChange,
         deleteContact: confirmDelete,
         createContact: createContactForm,
@@ -206,13 +202,13 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Navigate to="/contacts" />} />
-          <Route path="contacts" element={<Contacts />} />
-          <Route path="contacts/add" element={<AddContact />} />
-          <Route path="contacts/:contactId" element={<ViewContact />} />
-          <Route path="contacts/edit/:contactId" element={<EditContact />} />
+          <Route path="/contacts" element={<Contacts />} />
+          <Route path="/contacts/add" element={<AddContact />} />
+          <Route path="/contacts/:contactId" element={<ViewContact />} />
+          <Route path="/contacts/edit/:contactId" element={<EditContact />} />
         </Routes>
       </div>
-    </contactContext.Provider>
+    </ContactContext.Provider>
   );
 };
 

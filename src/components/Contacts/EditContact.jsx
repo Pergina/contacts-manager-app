@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { contactContext } from "../../context/contactContext";
+import { ContactContext } from "../../context/contactContext";
 import { getContact, updateContact } from "../../services/contactService";
 import { Spinner } from "../";
 import { COMMENT, ORANGE, PURPLE } from "../../helpers/colors";
@@ -16,7 +16,7 @@ const EditContact = () => {
     loading,
     setLoading,
     groups,
-  } = useContext(contactContext);
+  } = useContext(ContactContext);
 
   const navigate = useNavigate();
 

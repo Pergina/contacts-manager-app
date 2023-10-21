@@ -1,14 +1,14 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 
-import { contactContext } from "../../context/contactContext";
+import { ContactContext } from "../../context/contactContext";
 import Contact from "./Contact";
 import Spinner from "../Spinner";
 import { CURRENTLINE, ORANGE, PINK } from "../../helpers/colors";
 
 const Contacts = () => {
   const { filteredContacts, loading, deleteContact } =
-    useContext(contactContext);
+    useContext(ContactContext);
 
   return (
     <>

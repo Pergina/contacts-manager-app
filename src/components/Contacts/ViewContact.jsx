@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 
 import { Link, useParams } from "react-router-dom";
 
-import { contactContext } from "../../context/contactContext";
+import { ContactContext } from "../../context/contactContext";
 import { getContact, getGroup } from "../../services/contactService";
 import { Spinner } from "../";
 import { CURRENTLINE, CYAN, PURPLE } from "../../helpers/colors";
@@ -14,7 +14,7 @@ const ViewContact = () => {
     contact: {},
     group: {},
   });
-  const { loading, setLoading } = useContext(contactContext);
+  const { loading, setLoading } = useContext(ContactContext);
 
   useEffect(() => {
     const fetchData = async () => {
