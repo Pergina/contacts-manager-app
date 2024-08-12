@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
 
+import _ from "lodash";
+import { useImmer } from "use-immer";
+//Underline or Underscore
+
 import { ContactContext } from "./context/contactContext";
 import {
   AddContact,
@@ -19,6 +23,8 @@ import {
 } from "./services/contactService";
 
 import "./App.css";
+import 'react-toastify/dist/ReactToastify.css';
+
 import {
   CURRENTLINE,
   FOREGROUND,
@@ -26,20 +32,19 @@ import {
   YELLOW,
   COMMENT,
 } from "./helpers/colors";
-import { contactSchema } from "./validations/contactValidation";
+import { toast, ToastContainer } from "react-toastify";
 
 const App = () => {
-  const [loading, setLoading] = useState(false);
-  const [contacts, setContacts] = useState([]);
-  const [filteredContacts, setFilteredContacts] = useState([]);
-  const [groups, setGroups] = useState([]);
-  const [contact, setContact] = useState({});
-  const [contactQuery, setContactQuery] = useState({ text: "" });
-  const [errors, setErrors] = useState([])
+  const [loading, setLoading] = useImmer(false);
+  const [contacts, setContacts] = useImmer([]);
+  const [filteredContacts, setFilteredContacts] = useImmer([]);
+  const [groups, setGroups] = useImmer([]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    // console.log("Contact Manager App 🐧 ");
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -64,38 +69,29 @@ const App = () => {
   const createContactForm = async (values) => {
     // event.preventDefault();
     try {
-      setLoading((prevLoading) => !prevLoading);
-      // await contactSchema.validate(contact, {abortEarly: false});
+      setLoading(draft=> !draft);
+
+
       const { status, data } = await createContact(values);
 
-      /*
-       * NOTE
-       * 1- Rerender -> forceRender, setForceRender
-       * 2- setContact(data)
-       */
-
       if (status === 201) {
-        const allContacts = [...contacts, data];
 
-        setContacts(allContacts);
-        setFilteredContacts(allContacts);
+        setContacts(draft=> {
+          draft.push(data);
+        })
 
-        setContact({});
-        setLoading((prevLoading) => !prevLoading);
+        setFilteredContacts(draft=> {draft.push(data)})
+
+        // setContact({});
+        // setErrors([]);
+        setLoading(false);
         navigate("/contacts");
       }
     } catch (err) {
       console.log(err.message);
-      setErrors(err.inner)
-      setLoading((prevLoading) => !prevLoading);
+      // setErrors(err.inner);
+      setLoading(false);
     }
-  };
-
-  const onContactChange = (event) => {
-    setContact({
-      ...contact,
-      [event.target.name]: event.target.value,
-    });
   };
 
   const confirmDelete = (contactId, contactFullname) => {
@@ -150,12 +146,24 @@ const App = () => {
     // Contacts Copy
     const allContacts = [...contacts];
     try {
-      const updatedContact = contacts.filter((c) => c.id !== contactId);
-      setContacts(updatedContact);
-      setFilteredContacts(updatedContact);
+
+      setContacts(draft=> draft.filter(contact=> contact.id !== contactId))
+      setFilteredContacts(draft=> draft.filter(contact=> contact.id !== contactId))
 
       // Sending delete request to server
       const { status } = await deleteContact(contactId);
+
+      toast.error("Contact is succussfully cleared", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        // transition: Bounce,
+      })
 
       if (status !== 200) {
         setContacts(allContacts);
@@ -169,30 +177,37 @@ const App = () => {
     }
   };
 
-  const contactSearch = (event) => {
-    setContactQuery({ ...contactQuery, text: event.target.value });
-    const allContacts = contacts.filter((contact) => {
-      return contact.fullname
-        .toLowerCase()
-        .includes(event.target.value.toLowerCase());
-    });
+  // let filterTimeout;
+  const contactSearch = _.debounce((query) => {
+    // clearTimeout(filterTimeout);
 
-    setFilteredContacts(allContacts);
-  };
+    if (!query) return setFilteredContacts([...contacts]);
+
+    // filterTimeout = setTimeout(() => {
+    // setFilteredContacts(
+    //   contacts.filter((contact) => {
+    //     return contact.fullname.toLowerCase().includes(query.toLowerCase());
+    //   })
+    // );
+    setFilteredContacts(draft=> {
+      return draft.filter(c=> {
+        return c.fullname.toLowerCase().includes(query.toLowerCase())
+      })
+    })
+    // }, 1000);
+  }, 1000);
 
   return (
     <ContactContext.Provider
       value={{
         loading,
         setLoading,
-        contact,
         setContacts,
         setFilteredContacts,
-        contactQuery,
         contacts,
         filteredContacts,
         groups,
-        onContactChange,
+        /* errors, */
         deleteContact: confirmDelete,
         createContact: createContactForm,
         contactSearch,
@@ -202,11 +217,23 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Navigate to="/contacts" />} />
-          <Route path="/contacts" element={<Contacts />} />
-          <Route path="/contacts/add" element={<AddContact />} />
-          <Route path="/contacts/:contactId" element={<ViewContact />} />
-          <Route path="/contacts/edit/:contactId" element={<EditContact />} />
+          <Route path="contacts" element={<Contacts />} />
+          <Route path="contacts/add" element={<AddContact />} />
+          <Route path="contacts/:contactId" element={<ViewContact />} />
+          <Route path="contacts/edit/:contactId" element={<EditContact />} />
         </Routes>
+      <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       </div>
     </ContactContext.Provider>
   );
