@@ -23,8 +23,6 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "predeploy": "react-scripts build",
-    "deploy": "gh-pages -d build",
     "start": "concurrently \"react-scripts start\" \"cd server && npm start\" ",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -49,7 +47,6 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "gh-pages": "^6.1.1"
+    "concurrently": "^8.2.2"
   }
 }
