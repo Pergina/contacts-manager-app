@@ -1,5 +1,5 @@
 {
-  "home": "https://Pergina.github.io/contacts-manager-app",
+  "homepage": "https://Pergina.github.io/contacts-manager-app",
   "name": "contact-manager-app",
   "version": "0.1.0",
   "private": true,
@@ -23,6 +23,8 @@
     "yup": "^0.32.11"
   },
   "scripts": {
+    "predeploy": "react-scripts build",
+    "deploy": "gh-pages -d build",
     "start": "concurrently \"react-scripts start\" \"cd server && npm start\" ",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -47,6 +49,7 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "gh-pages": "^6.1.1"
   }
 }
